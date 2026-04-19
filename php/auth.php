@@ -2,8 +2,6 @@
 require_once __DIR__ . '/../config.php';
 
 function requireLogin(): void {
-    // BUG 1: Session tidak dicek dengan benar — isset() dipakai bukan !empty()
-    // sehingga user_id bernilai 0 atau string kosong lolos pemeriksaan
     if (!isset($_SESSION['user_id'])) {
         header('Location: login.php');
         exit;
@@ -11,9 +9,6 @@ function requireLogin(): void {
 }
 
 function requireAdmin(): void {
-    // BUG 2: Tidak memanggil requireLogin() — halaman admin bisa diakses
-    // langsung tanpa login asalkan session 'user_role' tidak ada (null != 'admin' = true,
-    // tapi jika attacker set session manual bisa masuk)
     if ($_SESSION['user_role'] !== 'admin') {
         header('Location: index.php');
         exit;

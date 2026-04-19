@@ -10,8 +10,6 @@ $search = trim($_GET['search'] ?? '');
 $pdo = getDB();
 
 if ($search !== '') {
-    // BUG 6: Kesalahan logika SQL — hanya mencari di kolom name, bukan description
-    // juga menggunakan = bukan LIKE sehingga pencarian harus persis
     $stmt = $pdo->prepare("SELECT * FROM products WHERE name = ? ORDER BY name");
     $stmt->execute([$search]);
 } else {

@@ -4,25 +4,16 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/database/init.php';
 initDatabase(getDB());
 
-if (!empty($_SESSION['user_id'])) {
-    header('Location: index.php');
-    exit;
-}
-
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    // BUG 3: Validasi format email dihilangkan — tidak ada filter_var()
-    // dan tidak ada pengecekan field kosong yang memadai
     if ($email === '') {
         $error = 'Email wajib diisi.';
     } else {
         $pdo = getDB();
-        // BUG 4: Query menggunakan OR sehingga jika password kosong pun
-        // bisa cocok jika email ada — seharusnya AND dengan password_verify
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch();
@@ -31,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_role'] = $user['role'];
-            // BUG 5: Redirect salah — mengarah ke login.php bukan index.php
             header('Location: login.php');
             exit;
         } else {
@@ -58,11 +48,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="post">
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required autofocus>
+                <input type="text" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" autofocus>
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" required>
+                <input type="password" name="password">
             </div>
             <button type="submit" class="btn btn-primary" style="width:100%">Masuk</button>
         </form>

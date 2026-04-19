@@ -18,7 +18,6 @@ if (empty($items)) {
     exit;
 }
 
-// BUG sama dengan cart.php — total dihitung tanpa quantity
 $total = 0;
 foreach ($items as $item) {
     $total += $item['price'];
@@ -29,7 +28,6 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = trim($_POST['address'] ?? '');
 
-    // BUG: Tidak ada validasi panjang minimum alamat
     if ($address === '') {
         $error = 'Alamat pengiriman wajib diisi.';
     } else {
@@ -37,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->beginTransaction();
 
             $stmt = $pdo->prepare("INSERT INTO orders (user_id, total_price, address) VALUES (?, ?, ?)");
-            // BUG: Menyimpan total yang salah (tidak dikalikan quantity) ke database
             $stmt->execute([$_SESSION['user_id'], $total, $address]);
             $orderId = $pdo->lastInsertId();
 
@@ -57,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } catch (Exception $e) {
             $pdo->rollBack();
-            // BUG: Error ditelan dengan @ — pesan error tidak ditampilkan ke user
             @trigger_error($e->getMessage());
             $error = 'Terjadi kesalahan sistem.';
         }

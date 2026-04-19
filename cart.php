@@ -37,7 +37,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } elseif ($action === 'remove') {
         $cartId = (int)($_POST['cart_id'] ?? 0);
-        // BUG 7: Tidak menyertakan user_id dalam WHERE — user bisa menghapus
         // item keranjang milik user lain dengan mengetahui cart_id
         $pdo->prepare("DELETE FROM cart WHERE id = ?")->execute([$cartId]);
         header('Location: cart.php');
@@ -58,10 +57,9 @@ $stmt = $pdo->prepare("SELECT c.id AS cart_id, c.quantity, p.id AS product_id, p
 $stmt->execute([$_SESSION['user_id']]);
 $items = $stmt->fetchAll();
 
-// BUG 8: Kalkulasi total salah — menggunakan harga tanpa dikali quantity
 $total = 0;
 foreach ($items as $item) {
-    $total += $item['price']; // seharusnya $item['price'] * $item['quantity']
+    $total += $item['price'];
 }
 
 $pageTitle = 'Keranjang — TokoKu';
