@@ -26,12 +26,12 @@ Aplikasi toko online berbasis PHP dan SQLite untuk keperluan pembelajaran penguj
 
 3. **Jalankan server PHP bawaan:**
    ```bash
-   php -S localhost:8000
+   php -S localhost:8001
    ```
 
 4. **Buka browser** dan akses:
    ```
-   http://localhost:8000
+   http://localhost:8001
    ```
 
 5. Database SQLite akan **dibuat otomatis** saat pertama kali halaman diakses. Tidak perlu konfigurasi database tambahan.
