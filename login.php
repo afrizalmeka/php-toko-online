@@ -12,6 +12,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($email === '') {
         $error = 'Email wajib diisi.';
+    } elseif ($password === '') {
+        $error = 'Password waajib diisi.';
     } else {
         $pdo = getDB();
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
@@ -22,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_role'] = $user['role'];
-            header('Location: login.php');
+            header('Location: index.php');
             exit;
         } else {
             $error = 'Email atau password salah.';

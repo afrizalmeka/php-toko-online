@@ -59,7 +59,7 @@ $items = $stmt->fetchAll();
 
 $total = 0;
 foreach ($items as $item) {
-    $total += $item['price'];
+    $total += $item['price'] * $item ['quantity'];
 }
 
 $pageTitle = 'Keranjang — TokoKu';
