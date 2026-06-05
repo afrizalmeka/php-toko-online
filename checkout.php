@@ -20,7 +20,7 @@ if (empty($items)) {
 
 $total = 0;
 foreach ($items as $item) {
-    $total += $item['price'];
+    $total += $item['price'] * $item['quantity'];
 }
 
 $error = '';
@@ -39,6 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orderId = $pdo->lastInsertId();
 
             foreach ($items as $item) {
+                if ($item['quantity'] > $item['stock']) {
+                    throw new Exception('Stok produk tidak mencukupi.');
+                }
                 $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)")
                     ->execute([$orderId, $item['product_id'], $item['quantity'], $item['price']]);
                 $pdo->prepare("UPDATE products SET stock = stock - ? WHERE id = ?")
@@ -49,6 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->commit();
 
             // Flash message tidak diset — user tidak mendapat konfirmasi
+            $_SESSION['success'] = 'Pesanan berhasil dibuat.';
             header('Location: orders.php');
             exit;
 
