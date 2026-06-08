@@ -22,7 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['user_id']   = $user['id'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_role'] = $user['role'];
-            header('Location: login.php');
+            
+            // ✅ PERBAIKAN: Redirect sesuai role tanpa menyentuh kode lain
+            if ($user['role'] === 'admin') {
+                header('Location: dashboard_admin.php');
+            } else {
+                header('Location: dashboard_customer.php');
+            }
             exit;
         } else {
             $error = 'Email atau password salah.';
