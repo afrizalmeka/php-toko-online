@@ -37,8 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } elseif ($action === 'remove') {
         $cartId = (int)($_POST['cart_id'] ?? 0);
-        // item keranjang milik user lain dengan mengetahui cart_id
-        $pdo->prepare("DELETE FROM cart WHERE id = ?")->execute([$cartId]);
+        $pdo->prepare("DELETE FROM cart WHERE id = ? AND user_id = ?")->execute([$cartId, $_SESSION['user_id']]);
         header('Location: cart.php');
         exit;
 
@@ -59,7 +58,7 @@ $items = $stmt->fetchAll();
 
 $total = 0;
 foreach ($items as $item) {
-    $total += $item['price'];
+    $total += $item['price'] * $item['quantity'];
 }
 
 $pageTitle = 'Keranjang — TokoKu';
