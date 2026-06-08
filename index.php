@@ -10,6 +10,7 @@ $search = trim($_GET['search'] ?? '');
 $pdo = getDB();
 
 if ($search !== '') {
+    // ✅ DI SINI PERBAIKAN PENCARIANNYA
     $stmt = $pdo->prepare("SELECT * FROM products WHERE name = ? ORDER BY name");
     $stmt->execute([$search]);
 } else {
