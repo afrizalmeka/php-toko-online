@@ -8,11 +8,16 @@ require_once __DIR__ . '/php/auth.php';
 
 $search = trim($_GET['search'] ?? '');
 $pdo = getDB();
-// Logika pencarian yang baru
+
 if ($search !== '') {
-    // Kita tambahkan OR description LIKE ? supaya deskripsi ikut dicari
-    $stmt = $pdo->prepare("SELECT * FROM products WHERE name = ? ORDER BY name");
-    $stmt->execute([$search]);
+    // Pakai LIKE agar tidak harus sama persis, dan tambahkan OR untuk deskripsi
+    $stmt = $pdo->prepare("SELECT * FROM products 
+                           WHERE name LIKE ? OR description LIKE ? 
+                           ORDER BY name");
+
+    // Tambahkan % di kedua sisi agar bisa mencari kata di tengah kalimat
+    $searchTerm = '%' . $search . '%';
+    $stmt->execute([$searchTerm, $searchTerm]);
 } else {
     $stmt = $pdo->query("SELECT * FROM products ORDER BY name");
 }
