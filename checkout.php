@@ -20,7 +20,8 @@ if (empty($items)) {
 
 $total = 0;
 foreach ($items as $item) {
-    $total += $item['price'];
+    // ✅ PERBAIKAN: Kalikan harga dengan quantity
+    $total += ($item['price'] * $item['quantity']); 
 }
 
 $error = '';
@@ -34,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare("INSERT INTO orders (user_id, total_price, address) VALUES (?, ?, ?)");
+           $stmt = $pdo->prepare("INSERT INTO orders (user_id, total_price, address, status) VALUES (?, ?, ?, 'pending')");
             $stmt->execute([$_SESSION['user_id'], $total, $address]);
             $orderId = $pdo->lastInsertId();
 

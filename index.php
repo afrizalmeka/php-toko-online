@@ -10,8 +10,10 @@ $search = trim($_GET['search'] ?? '');
 $pdo = getDB();
 
 if ($search !== '') {
-    $stmt = $pdo->prepare("SELECT * FROM products WHERE name = ? ORDER BY name");
-    $stmt->execute([$search]);
+    // ✅ PERBAIKAN: Mengganti = menjadi LIKE
+    $stmt = $pdo->prepare("SELECT * FROM products WHERE name LIKE ? ORDER BY name");
+    // ✅ PERBAIKAN: Menambahkan wildcard % agar mencari kata yang "mengandung" keyword
+    $stmt->execute(['%' . $search . '%']);
 } else {
     $stmt = $pdo->query("SELECT * FROM products ORDER BY name");
 }
