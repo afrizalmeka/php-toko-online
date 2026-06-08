@@ -20,16 +20,17 @@ if (empty($items)) {
 
 $total = 0;
 foreach ($items as $item) {
-    $total += $item['price'];
+    $total += $item['price'] * $item['quantity'];
 }
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = trim($_POST['address'] ?? '');
+    $name    = trim($_POST['name'] ?? '');
 
-    if ($address === '') {
-        $error = 'Alamat pengiriman wajib diisi.';
+    if ($address === '' || $name === '') {
+        $error = 'Nama penerima dan alamat pengiriman wajib diisi.';
     } else {
         try {
             $pdo->beginTransaction();
@@ -39,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orderId = $pdo->lastInsertId();
 
             foreach ($items as $item) {
+                if ($item['quantity'] > $item['stock']) {
+                    throw new Exception('Stok produk tidak mencukupi.');
+                }
                 $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)")
                     ->execute([$orderId, $item['product_id'], $item['quantity'], $item['price']]);
                 $pdo->prepare("UPDATE products SET stock = stock - ? WHERE id = ?")
@@ -48,14 +52,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare("DELETE FROM cart WHERE user_id = ?")->execute([$_SESSION['user_id']]);
             $pdo->commit();
 
-            // Flash message tidak diset — user tidak mendapat konfirmasi
+            $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Pesanan berhasil dibuat!'];
             header('Location: orders.php');
             exit;
 
         } catch (Exception $e) {
             $pdo->rollBack();
-            @trigger_error($e->getMessage());
-            $error = 'Terjadi kesalahan sistem.';
+            $error = 'Terjadi kesalahan sistem: ' . $e->getMessage();
         }
     }
 }
@@ -102,7 +105,7 @@ include __DIR__ . '/php/header.php';
                 <form method="post">
                     <div class="form-group">
                         <label>Nama Penerima</label>
-                        <input type="text" value="<?= htmlspecialchars($_SESSION['user_name']) ?>" disabled>
+                        <input type="text" name="name" value="<?= htmlspecialchars($_POST['name'] ?? $_SESSION['user_name']) ?>" required>
                     </div>
                     <div class="form-group">
                         <label>Alamat Pengiriman</label>
