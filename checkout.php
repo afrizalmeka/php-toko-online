@@ -27,9 +27,10 @@ $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = trim($_POST['address'] ?? '');
+    $name    = trim($_POST['name'] ?? '');
 
-    if ($address === '') {
-        $error = 'Alamat pengiriman wajib diisi.';
+    if ($address === '' || $name === '') {
+        $error = 'Nama penerima dan alamat pengiriman wajib diisi.';
     } else {
         try {
             $pdo->beginTransaction();
@@ -51,15 +52,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->prepare("DELETE FROM cart WHERE user_id = ?")->execute([$_SESSION['user_id']]);
             $pdo->commit();
 
-            // Flash message tidak diset — user tidak mendapat konfirmasi
-            $_SESSION['success'] = 'Pesanan berhasil dibuat.';
+            $_SESSION['flash'] = ['type' => 'success', 'msg' => 'Pesanan berhasil dibuat!'];
             header('Location: orders.php');
             exit;
 
         } catch (Exception $e) {
             $pdo->rollBack();
-            @trigger_error($e->getMessage());
-            $error = 'Terjadi kesalahan sistem.';
+            $error = 'Terjadi kesalahan sistem: ' . $e->getMessage();
         }
     }
 }
@@ -106,7 +105,7 @@ include __DIR__ . '/php/header.php';
                 <form method="post">
                     <div class="form-group">
                         <label>Nama Penerima</label>
-                        <input type="text" value="<?= htmlspecialchars($_SESSION['user_name']) ?>" disabled>
+                        <input type="text" name="name" value="<?= htmlspecialchars($_POST['name'] ?? $_SESSION['user_name']) ?>" required>
                     </div>
                     <div class="form-group">
                         <label>Alamat Pengiriman</label>

@@ -10,8 +10,8 @@ $search = trim($_GET['search'] ?? '');
 $pdo = getDB();
 
 if ($search !== '') {
-    $stmt = $pdo->prepare("SELECT * FROM products WHERE name = ? ORDER BY name");
-    $stmt->execute([$search]);
+    $stmt = $pdo->prepare("SELECT * FROM products WHERE name LIKE ? OR description LIKE ? ORDER BY name");
+    $stmt->execute(["%$search%", "%$search%"]);
 } else {
     $stmt = $pdo->query("SELECT * FROM products ORDER BY name");
 }

@@ -9,7 +9,7 @@ function requireLogin(): void {
 }
 
 function requireAdmin(): void {
-    if (!isset($_SESSION['user_role'])) {
+    if (!isset($_SESSION['user_id'])) {
         header('Location: login.php');
         exit;
     }
